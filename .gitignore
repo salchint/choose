@@ -1,3 +1,4 @@
+# CMake specific files
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
@@ -7,3 +8,7 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+
+# VS specific files
+*.sln
+*.vcxproj*
