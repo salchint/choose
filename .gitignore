@@ -1,3 +1,5 @@
+build/
+
 # CMake specific files
 CMakeCache.txt
 CMakeFiles
