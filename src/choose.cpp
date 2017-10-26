@@ -176,6 +176,37 @@ int rdrand64_retry (unsigned int retries, uint64_t *rand)
 }
 
 
+int rdseed16_step (uint16_t *seed)
+{
+	unsigned char ok;
+
+	asm volatile ("rdseed %0; setc %1"
+		: "=r" (*seed), "=qm" (ok));
+
+	return (int) ok;
+}
+
+int rdseed32_step (uint32_t *seed)
+{
+	unsigned char ok;
+
+	asm volatile ("rdseed %0; setc %1"
+		: "=r" (*seed), "=qm" (ok));
+
+	return (int) ok;
+}
+
+int rdseed64_step (uint64_t *seed)
+{
+	unsigned char ok;
+
+	asm volatile ("rdseed %0; setc %1"
+		: "=r" (*seed), "=qm" (ok));
+
+	return (int) ok;
+}
+
+
 //bool drawFromBinaryDistribution()
 //{
 //  auto ts = std::chrono::system_clock::now();
@@ -183,6 +214,36 @@ int rdrand64_retry (unsigned int retries, uint64_t *rand)
 //  std::cout << "RAN: " << (ts.time_since_epoch().count() %2 > 0) <<  std::endl;
 //
 //  return ts.time_since_epoch().count() %2 > 0;
+//}
+
+//bool drawFromBinaryDistribution()
+//{
+//  using std::cout;
+//  using std::endl;
+//
+//  static int hwSupport = -1;
+//
+//  if (hwSupport == -1)
+//  {
+//    hwSupport = get_drng_support();
+//    cout << "RDRAND is available: " << (((hwSupport & DRNG_HAS_RDRAND) == DRNG_HAS_RDRAND) ? "Yes" : "No") << endl;
+//    cout << "RDSEED is available: " << (((hwSupport & DRNG_HAS_RDSEED) == DRNG_HAS_RDSEED) ? "Yes" : "No") << endl;
+//    if (hwSupport == DRNG_NO_SUPPORT)
+//    {
+//      return false;
+//    }
+//  }
+//
+//  uint64_t rand = 0;
+//
+//  if (0 == rdrand64_retry(10, &rand))
+//  {
+//    cout << "There is no random number available!" << endl;
+//    return false;
+//  }
+//
+////  cout << "RAND " << rand << endl;
+//  return (1ull << 61) > rand;
 //}
 
 bool drawFromBinaryDistribution()
@@ -203,16 +264,13 @@ bool drawFromBinaryDistribution()
     }
   }
 
-  uint64_t rand = 0;
+  uint16_t rand = 0;
 
-  if (0 == rdrand64_retry(10, &rand))
+  for (; 0==rdseed16_step(&rand) ;)
   {
-    cout << "There is no random number available!" << endl;
-    return false;
   }
-
-//  cout << "RAND " << rand << endl;
-  return (1ull << 61) > rand;
+  
+  return (1ull << 15) > rand;
 }
 
 
@@ -220,12 +278,12 @@ int main(int /*argc*/, char **)
 {
   std::cout << "choose - random path demo                              Thomas Strunz (c) 2017 " << std::endl;
 
-  int intensity = 0;
+  volatile int intensity = 0;
 
   for (int i=0; i<1000000; ++i)
   {
-    int leftCount = 0;
-    int rightCount = 0;
+    volatile int leftCount = 0;
+    volatile int rightCount = 0;
 
     if (drawFromBinaryDistribution())
     {
