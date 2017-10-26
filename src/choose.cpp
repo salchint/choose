@@ -16,15 +16,41 @@
 // along with choose.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <chrono>
 
 bool drawFromBinaryDistribution()
 {
+  auto ts = std::chrono::system_clock::now();
+//  std::cout << "TS: " << ts.time_since_epoch().count() << std::endl;
+  std::cout << "RAN: " << (ts.time_since_epoch().count() %2 > 0) <<  std::endl;
 
+  return ts.time_since_epoch().count() %2 > 0;
 }
 
 int main(int /*argc*/, char **)
 {
   std::cout << "choose - random path demo                              Thomas Strunz (c) 2017 " << std::endl;
+
+  int intensity = 0;
+
+  for (int i=0; i<100000; ++i)
+  {
+    int leftCount = 0;
+    int rightCount = 0;
+
+    if (drawFromBinaryDistribution())
+    {
+      leftCount = 1;
+    }
+    else
+    {
+      rightCount = 1;
+    }
+
+    intensity += (leftCount + rightCount);
+  }
+
+  std::cout << "Point intensity: " << intensity << std::endl;
   
   return 0;
 }
