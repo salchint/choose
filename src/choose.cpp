@@ -28,19 +28,19 @@
 
 
 typedef struct cpuid_struct {
-	unsigned int eax;
-	unsigned int ebx;
-	unsigned int ecx;
-	unsigned int edx;
+  unsigned int eax;
+  unsigned int ebx;
+  unsigned int ecx;
+  unsigned int edx;
 } cpuid_t;
 
 
 void cpuid (cpuid_t *info, unsigned int leaf, unsigned int subleaf)
 {
-	asm volatile("cpuid"
-	: "=a" (info->eax), "=b" (info->ebx), "=c" (info->ecx), "=d" (info->edx)
-	: "a" (leaf), "c" (subleaf)
-	);
+  asm volatile("cpuid"
+      : "=a" (info->eax), "=b" (info->ebx), "=c" (info->ecx), "=d" (info->edx)
+      : "a" (leaf), "c" (subleaf)
+      );
 }
 
 
@@ -48,162 +48,162 @@ int _is_intel_cpu ()
 {
   using std::memcmp;
 
-	static int intel_cpu= -1;
-	cpuid_t info;
+  static int intel_cpu= -1;
+  cpuid_t info;
 
-	if ( intel_cpu == -1 ) {
-		cpuid(&info, 0, 0);
+  if ( intel_cpu == -1 ) {
+    cpuid(&info, 0, 0);
 
-		if (
-			memcmp((char *) &info.ebx, "Genu", 4) ||
-			memcmp((char *) &info.edx, "ineI", 4) ||
-			memcmp((char *) &info.ecx, "ntel", 4)
-		) {
-			intel_cpu= 0;
-		} else {
-			intel_cpu= 1;
-		}
-	}
+    if (
+        memcmp((char *) &info.ebx, "Genu", 4) ||
+        memcmp((char *) &info.edx, "ineI", 4) ||
+        memcmp((char *) &info.ecx, "ntel", 4)
+       ) {
+      intel_cpu= 0;
+    } else {
+      intel_cpu= 1;
+    }
+  }
 
-	return intel_cpu;
+  return intel_cpu;
 }
 
 
 int get_drng_support ()
 {
-	static int drng_features= -1;
+  static int drng_features= -1;
 
-	/* So we don't call cpuid multiple times for 
-	 * the same information */
+  /* So we don't call cpuid multiple times for
+   * the same information */
 
-	if ( drng_features == -1 ) {
-		drng_features= DRNG_NO_SUPPORT;
+  if ( drng_features == -1 ) {
+    drng_features= DRNG_NO_SUPPORT;
 
-		if ( _is_intel_cpu() ) {
-			cpuid_t info;
+    if ( _is_intel_cpu() ) {
+      cpuid_t info;
 
-			cpuid(&info, 1, 0);
+      cpuid(&info, 1, 0);
 
-			if ( (info.ecx & 0x40000000) == 0x40000000 ) {
-				drng_features|= DRNG_HAS_RDRAND;
-			}
+      if ( (info.ecx & 0x40000000) == 0x40000000 ) {
+        drng_features|= DRNG_HAS_RDRAND;
+      }
 
-			cpuid(&info, 7, 0);
+      cpuid(&info, 7, 0);
 
-			if ( (info.ebx & 0x40000) == 0x40000 ) {
-				drng_features|= DRNG_HAS_RDSEED;
-			}
-		} 
-	}
+      if ( (info.ebx & 0x40000) == 0x40000 ) {
+        drng_features|= DRNG_HAS_RDSEED;
+      }
+    }
+  }
 
-	return drng_features;
+  return drng_features;
 }
 
 
 int rdrand16_step (uint16_t *rand)
 {
-	unsigned char ok;
+  unsigned char ok;
 
-	asm volatile ("rdrand %0; setc %1"
-		: "=r" (*rand), "=qm" (ok));
+  asm volatile ("rdrand %0; setc %1"
+      : "=r" (*rand), "=qm" (ok));
 
-	return (int) ok;
+  return (int) ok;
 }
 
 int rdrand32_step (uint32_t *rand)
 {
-	unsigned char ok;
+  unsigned char ok;
 
-	asm volatile ("rdrand %0; setc %1"
-		: "=r" (*rand), "=qm" (ok));
+  asm volatile ("rdrand %0; setc %1"
+      : "=r" (*rand), "=qm" (ok));
 
-	return (int) ok;
+  return (int) ok;
 }
 
 int rdrand64_step (uint64_t *rand)
 {
-	unsigned char ok;
+  unsigned char ok;
 
-	asm volatile ("rdrand %0; setc %1"
-		: "=r" (*rand), "=qm" (ok));
+  asm volatile ("rdrand %0; setc %1"
+      : "=r" (*rand), "=qm" (ok));
 
-	return (int) ok;
+  return (int) ok;
 }
 
 int rdrand16_retry (unsigned int retries, uint16_t *rand)
 {
-	unsigned int count= 0;
+  unsigned int count= 0;
 
-	while ( count <= retries ) {
-		if ( rdrand16_step(rand) ) {
-			return 1;
-		}
+  while ( count <= retries ) {
+    if ( rdrand16_step(rand) ) {
+      return 1;
+    }
 
-		++count;
-	}
+    ++count;
+  }
 
-	return 0;
+  return 0;
 }
 
 int rdrand32_retry (unsigned int retries, uint32_t *rand)
 {
-	unsigned int count= 0;
+  unsigned int count= 0;
 
-	while ( count <= retries ) {
-		if ( rdrand32_step(rand) ) {
-			return 1;
-		}
+  while ( count <= retries ) {
+    if ( rdrand32_step(rand) ) {
+      return 1;
+    }
 
-		++count;
-	}
+    ++count;
+  }
 
-	return 0;
+  return 0;
 }
 
 int rdrand64_retry (unsigned int retries, uint64_t *rand)
 {
-	unsigned int count= 0;
+  unsigned int count= 0;
 
-	while ( count <= retries ) {
-		if ( rdrand64_step(rand) ) {
-			return 1;
-		}
+  while ( count <= retries ) {
+    if ( rdrand64_step(rand) ) {
+      return 1;
+    }
 
-		++count;
-	}
+    ++count;
+  }
 
-	return 0;
+  return 0;
 }
 
 
 int rdseed16_step (uint16_t *seed)
 {
-	unsigned char ok;
+  unsigned char ok;
 
-	asm volatile ("rdseed %0; setc %1"
-		: "=r" (*seed), "=qm" (ok));
+  asm volatile ("rdseed %0; setc %1"
+      : "=r" (*seed), "=qm" (ok));
 
-	return (int) ok;
+  return (int) ok;
 }
 
 int rdseed32_step (uint32_t *seed)
 {
-	unsigned char ok;
+  unsigned char ok;
 
-	asm volatile ("rdseed %0; setc %1"
-		: "=r" (*seed), "=qm" (ok));
+  asm volatile ("rdseed %0; setc %1"
+      : "=r" (*seed), "=qm" (ok));
 
-	return (int) ok;
+  return (int) ok;
 }
 
 int rdseed64_step (uint64_t *seed)
 {
-	unsigned char ok;
+  unsigned char ok;
 
-	asm volatile ("rdseed %0; setc %1"
-		: "=r" (*seed), "=qm" (ok));
+  asm volatile ("rdseed %0; setc %1"
+      : "=r" (*seed), "=qm" (ok));
 
-	return (int) ok;
+  return (int) ok;
 }
 
 
@@ -269,7 +269,7 @@ bool drawFromBinaryDistribution()
   for (; 0==rdseed16_step(&rand) ;)
   {
   }
-  
+
   return (1ull << 15) > rand;
 }
 
@@ -278,26 +278,28 @@ int main(int /*argc*/, char **)
 {
   std::cout << "choose - random path demo                              Thomas Strunz (c) 2017 " << std::endl;
 
-  volatile int intensity = 0;
+  int intensity = 0;
+  volatile int token = 0;
 
   for (int i=0; i<1000000; ++i)
   {
-    volatile int leftCount = 0;
-    volatile int rightCount = 0;
+//    volatile int leftCount = 0;
+//    volatile int rightCount = 0;
 
     if (drawFromBinaryDistribution())
     {
-      leftCount = 1;
+      token = 1;
     }
     else
     {
-      rightCount = 1;
+      token = 1;
     }
 
-    intensity += (leftCount + rightCount);
+    intensity += token;
+    token = 0;
   }
 
   std::cout << "Point intensity: " << intensity << std::endl;
-  
+
   return 0;
 }
