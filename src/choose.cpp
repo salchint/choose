@@ -279,24 +279,32 @@ int main(int /*argc*/, char **)
   std::cout << "choose - random path demo                              Thomas Strunz (c) 2017 " << std::endl;
 
   int intensity = 0;
-  volatile int token = 0;
 
   for (int i=0; i<1000000; ++i)
   {
-//    volatile int leftCount = 0;
-//    volatile int rightCount = 0;
+    int leftCount = 0;
+    int rightCount = 0;
 
+    // Go the left or right path
     if (drawFromBinaryDistribution())
     {
-      token = 1;
+      leftCount = 1;
     }
     else
     {
-      token = 1;
+      rightCount = 1;
     }
 
-    intensity += token;
-    token = 0;
+    // Remove the which-way data
+    if (drawFromBinaryDistribution())
+    {
+      intensity += leftCount;
+    }
+    else
+    {
+      intensity += rightCount;
+    }
+
   }
 
   std::cout << "Point intensity: " << intensity << std::endl;
