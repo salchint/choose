@@ -279,6 +279,7 @@ int main(int /*argc*/, char **)
   std::cout << "choose - random path demo                              Thomas Strunz (c) 2017 " << std::endl;
 
   int intensity = 0;
+  int intensity2 = 0;
 
   for (int i=0; i<1000000; ++i)
   {
@@ -298,16 +299,17 @@ int main(int /*argc*/, char **)
     // Remove the which-way data
     if (drawFromBinaryDistribution())
     {
-      intensity += leftCount;
+      intensity += (leftCount ^ rightCount);
     }
     else
     {
-      intensity += rightCount;
+      intensity2 += (leftCount ^ rightCount);
     }
 
   }
 
   std::cout << "Point intensity: " << intensity << std::endl;
+  std::cout << "Point intensity: " << intensity2 << std::endl;
 
   return 0;
 }
