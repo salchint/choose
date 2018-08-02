@@ -18,6 +18,12 @@
 #include <iostream>
 #include <chrono>
 #include <cstring>
+#include "token.h"
+#include "screen.h"
+
+
+int Screen::LeftScreenIntensity  = 0;
+int Screen::RightScreenIntensity = 0;
 
 
 /* These are bits that are OR’d together */
@@ -274,42 +280,49 @@ bool drawFromBinaryDistribution()
 }
 
 
+Token* createToken()
+{
+  if (drawFromBinaryDistribution())
+  {
+    return new LeftToken;
+  }
+  else
+  {
+    return new RightToken;
+  }
+}
+
+
+//Screen* getScreen()
+//{
+//  if (drawFromBinaryDistribution())
+//  {
+//    return new LeftScreen;
+//  }
+//  else
+//  {
+//    return new RightScreen;
+//  }
+//}
+
+
 int main(int /*argc*/, char **)
 {
   std::cout << "choose - random path demo                              Thomas Strunz (c) 2017 " << std::endl;
 
-  int intensity = 0;
-  int intensity2 = 0;
-
   for (int i=0; i<1000000; ++i)
   {
-    int leftCount = 0;
-    int rightCount = 0;
+    Token* token = createToken();
+    Screen* screen = token->getScreen();
 
-    // Go the left or right path
-    if (drawFromBinaryDistribution())
-    {
-      leftCount = 1;
-    }
-    else
-    {
-      rightCount = 1;
-    }
+    screen->hit();
 
-    // Remove the which-way data
-    if (drawFromBinaryDistribution())
-    {
-      intensity += (leftCount ^ rightCount);
-    }
-    else
-    {
-      intensity2 += (leftCount ^ rightCount);
-    }
-
+    delete screen;
+    delete token;
   }
 
-  std::cout << "Point intensity: " << intensity << std::endl;
-  std::cout << "Point intensity: " << intensity2 << std::endl;
+  std::cout << "Point intensity: " << Screen::LeftScreenIntensity << std::endl;
+  std::cout << "Point intensity: " << Screen::RightScreenIntensity << std::endl;
 
   return 0;
 }
