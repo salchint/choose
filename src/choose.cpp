@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Thomas Strunz
+// Copyright (C) 2018 Thomas Strunz
 //
 // This file is part of choose.
 //
@@ -25,6 +25,10 @@
 int Screen::LeftScreenIntensity  = 0;
 int Screen::RightScreenIntensity = 0;
 
+#ifdef _MSC_VER
+# include <intrin.h>
+#endif
+
 
 /* These are bits that are OR’d together */
 
@@ -43,10 +47,14 @@ typedef struct cpuid_struct {
 
 void cpuid (cpuid_t *info, unsigned int leaf, unsigned int subleaf)
 {
+#ifdef __GNUC__
   asm volatile("cpuid"
       : "=a" (info->eax), "=b" (info->ebx), "=c" (info->ecx), "=d" (info->edx)
       : "a" (leaf), "c" (subleaf)
       );
+#elif _MSC_VER
+  __cpuidex(reinterpret_cast<int*>(info), leaf, subleaf);
+#endif
 }
 
 
@@ -66,8 +74,10 @@ int _is_intel_cpu ()
         memcmp((char *) &info.ecx, "ntel", 4)
        ) {
       intel_cpu= 0;
+      //std::cout << "This is NOT an Intel CPU" << std::endl;
     } else {
       intel_cpu= 1;
+      //std::cout << "This is an Intel CPU" << std::endl;
     }
   }
 
@@ -108,30 +118,42 @@ int get_drng_support ()
 
 int rdrand16_step (uint16_t *rand)
 {
-  unsigned char ok;
+  unsigned char ok {0};
 
+#ifdef __GNUC__
   asm volatile ("rdrand %0; setc %1"
       : "=r" (*rand), "=qm" (ok));
+#elif _MSC_VER
+
+#endif
 
   return (int) ok;
 }
 
 int rdrand32_step (uint32_t *rand)
 {
-  unsigned char ok;
+  unsigned char ok {0};
 
+#ifdef __GNUC__
   asm volatile ("rdrand %0; setc %1"
       : "=r" (*rand), "=qm" (ok));
+#elif _MSC_VER
+
+#endif
 
   return (int) ok;
 }
 
 int rdrand64_step (uint64_t *rand)
 {
-  unsigned char ok;
+  unsigned char ok {0};
 
+#ifdef __GNUC__
   asm volatile ("rdrand %0; setc %1"
       : "=r" (*rand), "=qm" (ok));
+#elif _MSC_VER
+
+#endif
 
   return (int) ok;
 }
@@ -184,30 +206,42 @@ int rdrand64_retry (unsigned int retries, uint64_t *rand)
 
 int rdseed16_step (uint16_t *seed)
 {
-  unsigned char ok;
+  unsigned char ok {0};
 
+#ifdef __GNUC__
   asm volatile ("rdseed %0; setc %1"
       : "=r" (*seed), "=qm" (ok));
+#elif _MSC_VER
+
+#endif
 
   return (int) ok;
 }
 
 int rdseed32_step (uint32_t *seed)
 {
-  unsigned char ok;
+  unsigned char ok {0};
 
+#ifdef __GNUC__
   asm volatile ("rdseed %0; setc %1"
       : "=r" (*seed), "=qm" (ok));
+#elif _MSC_VER
+
+#endif
 
   return (int) ok;
 }
 
 int rdseed64_step (uint64_t *seed)
 {
-  unsigned char ok;
+  unsigned char ok {0};
 
+#ifdef __GNUC__
   asm volatile ("rdseed %0; setc %1"
       : "=r" (*seed), "=qm" (ok));
+#elif _MSC_VER
+
+#endif
 
   return (int) ok;
 }
@@ -308,7 +342,7 @@ Token* createToken()
 
 int main(int /*argc*/, char **)
 {
-  std::cout << "choose - random path demo                              Thomas Strunz (c) 2017 " << std::endl;
+  std::cout << "choose - random path demo                              Thomas Strunz (c) 2018 " << std::endl;
 
   for (int i=0; i<1000000; ++i)
   {
