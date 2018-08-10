@@ -21,6 +21,7 @@
 
 #ifdef _MSC_VER
 # include <intrin.h>
+# include <immintrin.h>
 #endif
 
 
@@ -118,7 +119,7 @@ int rdrand16_step (uint16_t *rand)
   asm volatile ("rdrand %0; setc %1"
       : "=r" (*rand), "=qm" (ok));
 #elif _MSC_VER
-
+  ok = _rdrand16_step(rand);
 #endif
 
   return (int) ok;
@@ -132,7 +133,7 @@ int rdrand32_step (uint32_t *rand)
   asm volatile ("rdrand %0; setc %1"
       : "=r" (*rand), "=qm" (ok));
 #elif _MSC_VER
-
+  ok = _rdrand32_step(rand);
 #endif
 
   return (int) ok;
@@ -146,7 +147,9 @@ int rdrand64_step (uint64_t *rand)
   asm volatile ("rdrand %0; setc %1"
       : "=r" (*rand), "=qm" (ok));
 #elif _MSC_VER
-
+# ifdef _M_X64
+  ok = _rdrand64_step(rand);
+# endif
 #endif
 
   return (int) ok;
@@ -206,7 +209,7 @@ int rdseed16_step (uint16_t *seed)
   asm volatile ("rdseed %0; setc %1"
       : "=r" (*seed), "=qm" (ok));
 #elif _MSC_VER
-
+  ok = _rdseed16_step(seed);
 #endif
 
   return (int) ok;
@@ -220,7 +223,7 @@ int rdseed32_step (uint32_t *seed)
   asm volatile ("rdseed %0; setc %1"
       : "=r" (*seed), "=qm" (ok));
 #elif _MSC_VER
-
+  ok = _rdseed32_step(seed);
 #endif
 
   return (int) ok;
@@ -234,7 +237,9 @@ int rdseed64_step (uint64_t *seed)
   asm volatile ("rdseed %0; setc %1"
       : "=r" (*seed), "=qm" (ok));
 #elif _MSC_VER
-
+# ifdef _M_X64
+  ok = _rdseed64_step(seed);
+# endif
 #endif
 
   return (int) ok;
