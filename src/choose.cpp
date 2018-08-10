@@ -27,9 +27,9 @@
 
 /* These are bits that are OR’d together */
 
-#define DRNG_NO_SUPPORT	0x0	/* For clarity */
-#define DRNG_HAS_RDRAND	0x1
-#define DRNG_HAS_RDSEED	0x2
+#define DRNG_NO_SUPPORT 0x0 /* For clarity */
+#define DRNG_HAS_RDRAND 0x1
+#define DRNG_HAS_RDSEED 0x2
 
 
 typedef struct cpuid_struct {
@@ -60,17 +60,20 @@ int _is_intel_cpu ()
   static int intel_cpu= -1;
   cpuid_t info;
 
-  if ( intel_cpu == -1 ) {
+  if (intel_cpu == -1)
+  {
     cpuid(&info, 0, 0);
 
-    if (
-        memcmp((char *) &info.ebx, "Genu", 4) ||
+    if (memcmp((char *) &info.ebx, "Genu", 4) ||
         memcmp((char *) &info.edx, "ineI", 4) ||
         memcmp((char *) &info.ecx, "ntel", 4)
-       ) {
+       )
+    {
       intel_cpu= 0;
       //std::cout << "This is NOT an Intel CPU" << std::endl;
-    } else {
+    }
+    else
+    {
       intel_cpu= 1;
       //std::cout << "This is an Intel CPU" << std::endl;
     }
@@ -87,21 +90,25 @@ int get_drng_support ()
   /* So we don't call cpuid multiple times for
    * the same information */
 
-  if ( drng_features == -1 ) {
+  if (drng_features == -1)
+  {
     drng_features= DRNG_NO_SUPPORT;
 
-    if ( _is_intel_cpu() ) {
+    if (_is_intel_cpu())
+    {
       cpuid_t info;
 
       cpuid(&info, 1, 0);
 
-      if ( (info.ecx & 0x40000000) == 0x40000000 ) {
+      if ((info.ecx & 0x40000000) == 0x40000000)
+      {
         drng_features|= DRNG_HAS_RDRAND;
       }
 
       cpuid(&info, 7, 0);
 
-      if ( (info.ebx & 0x40000) == 0x40000 ) {
+      if ((info.ebx & 0x40000) == 0x40000)
+      {
         drng_features|= DRNG_HAS_RDSEED;
       }
     }
@@ -159,8 +166,10 @@ int rdrand16_retry (unsigned int retries, uint16_t *rand)
 {
   unsigned int count= 0;
 
-  while ( count <= retries ) {
-    if ( rdrand16_step(rand) ) {
+  while (count <= retries)
+  {
+    if (rdrand16_step(rand))
+    {
       return 1;
     }
 
@@ -174,8 +183,10 @@ int rdrand32_retry (unsigned int retries, uint32_t *rand)
 {
   unsigned int count= 0;
 
-  while ( count <= retries ) {
-    if ( rdrand32_step(rand) ) {
+  while (count <= retries)
+  {
+    if (rdrand32_step(rand))
+    {
       return 1;
     }
 
@@ -189,8 +200,10 @@ int rdrand64_retry (unsigned int retries, uint64_t *rand)
 {
   unsigned int count= 0;
 
-  while ( count <= retries ) {
-    if ( rdrand64_step(rand) ) {
+  while (count <= retries)
+  {
+    if (rdrand64_step(rand))
+    {
       return 1;
     }
 
@@ -305,6 +318,8 @@ bool drawFromBinaryDistribution()
 
   uint16_t rand = 0;
 
+  // Keep on trying! It might take some time until the random number pool responses.
+  // TODO: break after *some* time
   for (; 0==rdseed16_step(&rand) ;)
   {
   }
