@@ -336,6 +336,9 @@ bool drawFromBinaryDistribution()
 
 Token* createToken()
 {
+  // This is a completely random draw based on rdseed.
+  // Intel has implemented the underlying RNG device using the entropy of the thermal noice of electrical
+  // resistors.
   if (drawFromBinaryDistribution())
   {
     return new LeftToken;
